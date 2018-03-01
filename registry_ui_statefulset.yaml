@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-web-registry
+  namespace: default
+data:
+  config.yml: |
+    registry:
+      # Docker registry url
+      url: http://192.168.106.131:30001/v2
+      # Docker registry fqdn
+      name: 192.168.106.131:30001
+      # To allow image delete, should be false
+      readonly: false
+      auth:
+        # Disable authentication
+        enabled: false
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: docker-web-registry
+  labels:
+    name: docker-web-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-web-registry
+  serviceName: docker-web-registry
+  template:
+    metadata:
+      name: docker-web-registry
+      labels:
+        app: docker-web-registry
+    spec:
+      containers:
+      - image: hyper/docker-registry-web:latest
+        imagePullPolicy: Always
+        name: registry
+        volumeMounts:
+        - mountPath: /conf/config.yml
+          name: config-path
+          subPath: config.yml
+
+      volumes:
+      - name: config-path
+        configMap:
+          name: docker-web-registry
+          items:
+          - key: config.yml
+            path: config.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: docker-web-registry
+  name: docker-web-registry
+  namespace: default
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: http
+    nodePort: 30002
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: docker-web-registry
+  type: NodePort

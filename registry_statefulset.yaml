@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-registry
+  namespace: default
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
+      delete:
+        enabled: true
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: docker-registry
+  labels:
+    name: docker-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-registry
+  serviceName: docker-registry
+  template:
+    metadata:
+      name: docker-registry
+      labels:
+        app: docker-registry
+    spec:
+      containers:
+      - image: registry:2
+        imagePullPolicy: Always
+        name: registry
+        volumeMounts:
+        - mountPath: /var/lib/registry
+          name: registry-path
+        - mountPath: /etc/docker/registry/config.yml
+          name: config-path
+          subPath: config.yml
+
+      volumes:
+      - name: registry-path
+        hostPath:
+            path: /opt/docker-registry
+            type: Directory
+      - name: config-path
+        configMap:
+          name: docker-registry
+          items:
+          - key: config.yml
+            path: config.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: docker-registry
+  name: docker-registry
+  namespace: default
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: http
+    nodePort: 30001
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: docker-registry
+  type: NodePort
