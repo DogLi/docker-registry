@@ -20,59 +20,6 @@ data:
       # Private key for token signing
       # certificate used on auth.token.rootcertbundle should signed by this key
       key: /conf/auth.key
-  auth.key: |
-    -----BEGIN PRIVATE KEY-----
-    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
-    jR8aBhbAAUuvi7+P7pnC0LsC3Ho4VHsJlw==
-    -----END PRIVATE KEY-----
 
 ---
 apiVersion: apps/v1beta1
@@ -120,7 +67,7 @@ spec:
             path: config.yml
       - name: auth-path
         configMap:
-          name: docker-web-registry
+          name: docker-auth
           items:
           - key: auth.key
             path: auth.key
