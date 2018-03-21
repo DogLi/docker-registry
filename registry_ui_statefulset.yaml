@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - image: hyper/docker-registry-web:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: registry
         volumeMounts:
         - mountPath: /conf/config.yml

@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
       - image: registry:2
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: registry
         volumeMounts:
         - mountPath: /var/lib/registry
