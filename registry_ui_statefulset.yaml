@@ -7,9 +7,9 @@ data:
   config.yml: |
     registry:
       # Docker registry url
-      url: http://192.168.106.131:30001/v2
+      url: http://docker-registry:5000/v2
       # Docker registry fqdn
-      name: 192.168.106.131:30001
+      name: docker-registry:30001
       # To allow image delete, should be false
       readonly: false
       auth:
